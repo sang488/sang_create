@@ -1342,7 +1342,9 @@
 
 <!-- MÚSICA DE FONDO -->
 <button id="musicToggle" class="music-toggle" aria-label="Reproducir música de fondo" title="Música">♪</button>
-<div id="ytAudioPlayer" style="position:fixed; bottom:0; right:0; width:2px; height:2px; opacity:0; pointer-events:none; overflow:hidden;"></div>
+<audio id="bgMusic" loop preload="auto">
+  <source src="assets/music.mp3" type="audio/mpeg">
+</audio>
 
 <!-- LOADER -->
 <div id="loader">
@@ -1721,83 +1723,43 @@
   window.scrollTo(0, 0);
   window.addEventListener('load', () => window.scrollTo(0, 0));
 
-  // ── MÚSICA DE FONDO (YouTube embed — requiere un clic por política de autoplay del navegador) ──
+  // ── MÚSICA DE FONDO (audio propio, autohospedado — funciona en cualquier navegador) ──
   (function() {
-    const VIDEO_ID = 'hNRlYgskVJM';
-    const TARGET_VOLUME = 8;
+    const TARGET_VOLUME = 0.4;
     const btn = document.getElementById('musicToggle');
-    let player, apiReady = false, playing = false, started = false, pendingPlay = false;
+    const audio = document.getElementById('bgMusic');
+    let playing = false;
+    audio.volume = 0;
 
-    const tag = document.createElement('script');
-    tag.src = 'https://www.youtube.com/iframe_api';
-    document.head.appendChild(tag);
+    audio.addEventListener('loadedmetadata', () => {
+      if (audio.duration && isFinite(audio.duration)) {
+        audio.currentTime = Math.random() * Math.max(audio.duration - 15, 0);
+      }
+    });
 
     function fadeVolume(to, duration) {
       const steps = 20;
-      const from = player.getVolume();
+      const from = audio.volume;
       let i = 0;
       const interval = setInterval(() => {
         i++;
-        player.setVolume(from + (to - from) * (i / steps));
+        audio.volume = from + (to - from) * (i / steps);
         if (i >= steps) clearInterval(interval);
       }, duration / steps);
     }
 
-    window.onYouTubeIframeAPIReady = function() {
-      player = new YT.Player('ytAudioPlayer', {
-        videoId: VIDEO_ID,
-        playerVars: { autoplay: 0, controls: 0, loop: 1, playlist: VIDEO_ID, playsinline: 1, origin: window.location.origin },
-        events: {
-          onReady: () => {
-            apiReady = true;
-            if (pendingPlay) {
-              pendingPlay = false;
-              player.playVideo();
-              btn.classList.add('playing');
-              playing = true;
-            }
-          },
-          onStateChange: (e) => {
-            if (e.data === YT.PlayerState.PLAYING) {
-              btn.classList.add('playing');
-              btn.title = 'Música';
-              if (!started) {
-                started = true;
-                const duration = player.getDuration() || 200;
-                player.seekTo(Math.floor(Math.random() * Math.max(duration - 30, 1)), true);
-                player.setVolume(0);
-                fadeVolume(TARGET_VOLUME, 2500);
-              }
-            }
-          },
-          onError: () => {
-            playing = false;
-            btn.classList.remove('playing');
-            btn.title = 'No se pudo cargar la música (puede estar bloqueada por el navegador)';
-          }
-        }
-      });
-    };
-
     btn.addEventListener('click', () => {
-      if (!apiReady) {
-        pendingPlay = !pendingPlay;
-        btn.classList.toggle('playing', pendingPlay);
-        return;
-      }
       if (!playing) {
-        player.playVideo();
-        btn.classList.add('playing');
-        playing = true;
-        setTimeout(() => {
-          if (player.getPlayerState() !== YT.PlayerState.PLAYING) {
-            playing = false;
-            btn.classList.remove('playing');
-            btn.title = 'No se pudo reproducir la música (puede estar bloqueada por el navegador)';
-          }
-        }, 3000);
+        audio.play().then(() => {
+          btn.classList.add('playing');
+          btn.title = 'Música';
+          playing = true;
+          fadeVolume(TARGET_VOLUME, 2500);
+        }).catch(() => {
+          btn.title = 'No se pudo reproducir la música';
+        });
       } else {
-        player.pauseVideo();
+        audio.pause();
         btn.classList.remove('playing');
         playing = false;
       }
