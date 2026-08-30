@@ -1242,7 +1242,7 @@
       .about-hero-badge { display: none; }
       .exp-prev { left: .3rem; }
       .exp-next { right: .3rem; }
-      .exp-slide { padding: 1.6rem 1.4rem 1.6rem 1.5rem; }
+      .exp-slide { padding: 1.6rem 1.4rem 1.6rem 1.5rem; min-height: 340px; }
       .about-block .ast-red, .about-block .ast-white { display: none; }
       .contact-strip { flex-direction: column; gap: 2rem; text-align: center; }
       /* Encabezados sin rotación en mobile — evita que el giro corte el texto contra el borde del contenedor */
@@ -1266,7 +1266,7 @@
 
       /* Título — abajo centrado, envuelve en varias líneas si hace falta */
       .hero-title-overlay {
-        bottom: 90px;
+        bottom: 118px;
         left: 0; right: 0;
         top: auto;
         width: 100%;
@@ -1334,7 +1334,7 @@
 
 <!-- MÚSICA DE FONDO -->
 <button id="musicToggle" class="music-toggle" aria-label="Reproducir música de fondo" title="Música">♪</button>
-<div id="ytAudioPlayer" style="position:fixed; left:-9999px; width:1px; height:1px; overflow:hidden;"></div>
+<div id="ytAudioPlayer" style="position:fixed; bottom:0; right:0; width:2px; height:2px; opacity:0; pointer-events:none; overflow:hidden;"></div>
 
 <!-- LOADER -->
 <div id="loader">
@@ -1738,7 +1738,7 @@
     window.onYouTubeIframeAPIReady = function() {
       player = new YT.Player('ytAudioPlayer', {
         videoId: VIDEO_ID,
-        playerVars: { autoplay: 0, controls: 0, loop: 1, playlist: VIDEO_ID, playsinline: 1 },
+        playerVars: { autoplay: 0, controls: 0, loop: 1, playlist: VIDEO_ID, playsinline: 1, origin: window.location.origin },
         events: {
           onReady: () => {
             apiReady = true;
