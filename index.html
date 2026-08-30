@@ -476,7 +476,9 @@
       animation: marqueeScroll 22s linear infinite;
       white-space: nowrap;
     }
-    .marquee-track:hover { animation-play-state: paused; }
+    @media (hover: hover) {
+      .marquee-track:hover { animation-play-state: paused; }
+    }
     @keyframes marqueeScroll {
       from { transform: translateX(0); }
       to { transform: translateX(-50%); }
@@ -578,7 +580,9 @@
       animation: worksScroll 95s linear infinite;
       padding: 1.5rem 2.5rem;
     }
-    .works-track:hover { animation-play-state: paused; }
+    @media (hover: hover) {
+      .works-track:hover { animation-play-state: paused; }
+    }
     @keyframes worksScroll {
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
@@ -1216,6 +1220,22 @@
         max-width: 100%; width: 100%; box-sizing: border-box;
       }
       .about-hero-photo-wrap { justify-self: center; margin-left: 0; }
+      /* Constelación de habilidades — visible en mobile, en fila normal antes del texto */
+      .about-block-red { display: flex; flex-direction: column; }
+      .about-block-red .blob-heading { order: 0; }
+      .historia-keywords {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-content: center;
+        gap: 1.2rem .8rem;
+        position: static;
+        width: 100%;
+        order: 1;
+        padding: 1rem 0 2.5rem;
+      }
+      .historia-keywords .hk-word, .historia-keywords .hk-hub { position: static; }
+      .about-block-text { order: 2; }
       .blob-heading.left { text-align: center; }
       .exp-slider { text-align: left; margin: 0 auto; }
       .about-hero-content .ast-3, .about-hero-content .ast-4 { display: none; }
@@ -1239,9 +1259,9 @@
 
     /* Portrait / vertical — móvil */
     @media (orientation: portrait) {
-      /* Video — se ve completo (sin recortar el logo) en vez de llenar la pantalla */
-      .hero { background: var(--black); }
-      .hero-video-bg { object-fit: contain; top: 50%; bottom: auto; left: 0; right: 0; transform: translateY(-50%); height: auto; max-height: 72vh; }
+      /* Video — se ve completo (sin recortar el logo), ocupando la mayor parte del hero */
+      .hero { min-height: 82vh; background: var(--black); }
+      .hero-video-bg { object-fit: contain; }
 
       /* Título — abajo centrado, envuelve en varias líneas si hace falta */
       .hero-title-overlay {
@@ -1869,7 +1889,10 @@
     setTimeout(scramble, 400);
 
     // Dismiss: flash then fade
+    let dismissed = false;
     function dismiss() {
+      if (dismissed) return;
+      dismissed = true;
       running = false;
       // brief white flash
       loader.style.background = '#fff';
@@ -1885,6 +1908,8 @@
       }, 60);
     }
     window.addEventListener('load', () => setTimeout(dismiss, 2700));
+    // Tope máximo — en conexiones lentas (móvil) no esperar más de 5s en total
+    setTimeout(dismiss, 5000);
   })();
 
   // ── INTERSECTION OBSERVER (reveal + counters) ──
